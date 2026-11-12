@@ -135,10 +135,10 @@ servidor; `python manage.py test` passa; o status aparece rotulado em português
 
 ### Sprint 2 | Login, logout e proteção das páginas
 
-- [ ] Rotas `/entrar/` e `/sair/` com as views nativas do Django.
-- [ ] Template de login com o design system.
-- [ ] `login_required` nas views de atendimento e `LOGIN_URL` configurado.
-- [ ] Testes: anônimo é redirecionado, autenticado acessa, logout encerra a sessão.
+- [x] Rotas `/entrar/` e `/sair/` com as views nativas do Django.
+- [x] Template de login com o design system.
+- [x] `login_required` nas views de atendimento e `LOGIN_URL` configurado.
+- [x] Testes: anônimo é redirecionado, autenticado acessa, logout encerra a sessão.
 
 Critérios de aceite: em aba anônima a lista não abre; depois do logout, voltar à lista pede
 login de novo.

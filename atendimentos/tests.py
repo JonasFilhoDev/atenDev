@@ -71,3 +71,89 @@ class AtendimentoAdminTests(TestCase):
         request.user = self.user
 
         self.assertFalse(model_admin.has_delete_permission(request))
+
+
+class LoginTests(TestCase):
+    """Sprint 2: login, logout e proteção das páginas de atendimento."""
+
+    def setUp(self):
+        self.senha = "senha-ficticia-123"
+        self.user = get_user_model().objects.create_user(
+            username="responsavel",
+            password=self.senha,
+        )
+        self.lista_url = reverse("atendimentos:lista")
+        self.login_url = reverse("login")
+        self.logout_url = reverse("logout")
+
+    def test_anonimo_e_redirecionado_para_o_login(self):
+        response = self.client.get(self.lista_url)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response["Location"], f"{self.login_url}?next={self.lista_url}"
+        )
+
+    def test_autenticado_acessa_a_lista(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(self.lista_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "atendimentos/lista.html")
+
+    def test_lista_mostra_responsavel_e_botao_sair(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(self.lista_url)
+
+        self.assertContains(response, "responsavel")
+        self.assertContains(response, "Sair")
+
+    def test_pagina_de_login_abre_com_formulario(self):
+        response = self.client.get(self.login_url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="username"')
+        self.assertContains(response, 'name="password"')
+
+    def test_credencial_invalida_mostra_erro(self):
+        response = self.client.post(
+            self.login_url,
+            {"username": "responsavel", "password": "senha-errada"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["form"].errors)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+    def test_login_valido_redireciona_para_a_lista(self):
+        response = self.client.post(
+            self.login_url,
+            {"username": "responsavel", "password": self.senha},
+        )
+
+        self.assertRedirects(response, self.lista_url)
+
+    def test_logout_encerra_a_sessao(self):
+        self.client.force_login(self.user)
+
+        response = self.client.post(self.logout_url)
+
+        self.assertRedirects(response, self.login_url)
+        self.assertNotIn("_auth_user_id", self.client.session)
+
+        resposta_da_lista = self.client.get(self.lista_url)
+        self.assertEqual(resposta_da_lista.status_code, 302)
+        self.assertEqual(
+            resposta_da_lista["Location"], f"{self.login_url}?next={self.lista_url}"
+        )
+
+    def test_raiz_redireciona_para_a_lista_protegida(self):
+        response = self.client.get(reverse("home"))
+
+        self.assertRedirects(response, self.lista_url, fetch_redirect_response=False)
+
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("home"))
+        self.assertRedirects(response, self.lista_url)

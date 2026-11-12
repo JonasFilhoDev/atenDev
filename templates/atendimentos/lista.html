@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Atendimentos | atenDev{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <h1 class="h4 m-0 me-auto">Atendimentos</h1>
+  <span class="text-body-secondary small">{{ atendimentos|length }} no total</span>
+</div>
+
+{% if atendimentos %}
+  <ul class="list-group shadow-sm">
+    {% for atendimento in atendimentos %}
+      <li class="list-group-item py-3">
+        <div class="d-flex flex-wrap align-items-start gap-2">
+          <div class="me-auto">
+            <div class="fw-semibold">{{ atendimento.assunto }}</div>
+            <div class="text-body-secondary small">{{ atendimento.cliente }}</div>
+          </div>
+          {% if atendimento.status == "concluido" %}
+            <span class="badge text-bg-success">{{ atendimento.get_status_display }}</span>
+          {% elif atendimento.status == "em_andamento" %}
+            <span class="badge text-bg-warning">{{ atendimento.get_status_display }}</span>
+          {% else %}
+            <span class="badge text-bg-secondary">{{ atendimento.get_status_display }}</span>
+          {% endif %}
+        </div>
+        <div class="text-body-secondary small mt-2">
+          criado em {{ atendimento.created_at|date:"d/m/Y H:i" }}
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="alert alert-light border" role="status">
+    Nenhum atendimento cadastrado ainda.
+  </div>
+{% endif %}
+{% endblock %}
