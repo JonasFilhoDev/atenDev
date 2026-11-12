@@ -157,3 +157,140 @@ class LoginTests(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse("home"))
         self.assertRedirects(response, self.lista_url)
+
+
+class AtendimentoTelasTests(TestCase):
+    """Sprint 3: lista com filtro, cadastro, edição e mensagem de sucesso."""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="responsavel",
+            password="senha-ficticia-123",
+        )
+        self.client.force_login(self.user)
+        self.lista_url = reverse("atendimentos:lista")
+        self.criar_url = reverse("atendimentos:criar")
+
+    def test_anonimo_nao_acessa_cadastro_nem_edicao(self):
+        atendimento = Atendimento.objects.create(cliente="Cliente A", assunto="Existente")
+
+        editar_url = reverse("atendimentos:editar", args=[atendimento.pk])
+        self.client.logout()
+
+        for url in (self.criar_url, editar_url):
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 302)
+            self.assertTrue(response["Location"].startswith(reverse("login")))
+
+    def test_cadastro_valido_cria_com_status_pendente_e_avisa(self):
+        response = self.client.post(
+            self.criar_url,
+            {
+                "cliente": "Cliente Fictício",
+                "assunto": "Revisar formulário de contato",
+                "descricao": "",
+                "status": Atendimento.Status.PENDENTE,
+            },
+            follow=True,
+        )
+
+        self.assertRedirects(response, self.lista_url)
+        self.assertContains(response, "Atendimento cadastrado.")
+
+        atendimento = Atendimento.objects.get()
+        self.assertEqual(atendimento.status, Atendimento.Status.PENDENTE)
+        self.assertEqual(atendimento.assunto, "Revisar formulário de contato")
+
+    def test_assunto_vazio_e_rejeitado_sem_criar(self):
+        response = self.client.post(
+            self.criar_url,
+            {"cliente": "Cliente Fictício", "assunto": "", "status": Atendimento.Status.PENDENTE},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Atendimento.objects.count(), 0)
+        self.assertIn("assunto", response.context["form"].errors)
+        self.assertContains(response, "Este campo é obrigatório.")
+
+    def test_cliente_vazio_e_rejeitado_sem_criar(self):
+        response = self.client.post(
+            self.criar_url,
+            {"cliente": "   ", "assunto": "Assunto válido", "status": Atendimento.Status.PENDENTE},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Atendimento.objects.count(), 0)
+        self.assertIn("cliente", response.context["form"].errors)
+
+    def test_edicao_altera_status_e_persiste(self):
+        atendimento = Atendimento.objects.create(
+            cliente="Cliente Fictício",
+            assunto="Revisar formulário",
+        )
+        editar_url = reverse("atendimentos:editar", args=[atendimento.pk])
+
+        response = self.client.post(
+            editar_url,
+            {
+                "cliente": atendimento.cliente,
+                "assunto": atendimento.assunto,
+                "descricao": "",
+                "status": Atendimento.Status.CONCLUIDO,
+            },
+            follow=True,
+        )
+
+        self.assertRedirects(response, self.lista_url)
+        self.assertContains(response, "Atendimento atualizado.")
+
+        atendimento.refresh_from_db()
+        self.assertEqual(atendimento.status, Atendimento.Status.CONCLUIDO)
+
+        lista = self.client.get(self.lista_url)
+        self.assertContains(lista, "Concluído")
+
+    def test_filtro_concluido_mostra_apenas_concluidos(self):
+        Atendimento.objects.create(cliente="Cliente A", assunto="Continua pendente")
+        Atendimento.objects.create(
+            cliente="Cliente B",
+            assunto="Terminado",
+            status=Atendimento.Status.CONCLUIDO,
+        )
+
+        response = self.client.get(self.lista_url, {"status": Atendimento.Status.CONCLUIDO})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Terminado")
+        self.assertNotContains(response, "Continua pendente")
+        self.assertEqual(response.context["status_escolhido"], Atendimento.Status.CONCLUIDO)
+
+    def test_filtro_invalido_mostra_todos(self):
+        Atendimento.objects.create(cliente="Cliente A", assunto="Continua pendente")
+        Atendimento.objects.create(
+            cliente="Cliente B",
+            assunto="Terminado",
+            status=Atendimento.Status.CONCLUIDO,
+        )
+
+        response = self.client.get(self.lista_url, {"status": "inexistente"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Continua pendente")
+        self.assertContains(response, "Terminado")
+        self.assertEqual(response.context["status_escolhido"], "")
+
+    def test_estado_vazio_do_filtro_explica_o_motivo(self):
+        response = self.client.get(self.lista_url, {"status": Atendimento.Status.CONCLUIDO})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Nenhum atendimento com o status")
+
+    def test_lista_oferece_caminho_para_cadastrar(self):
+        response = self.client.get(self.lista_url)
+
+        self.assertContains(response, self.criar_url)
+
+    def test_edicao_de_atendimento_inexistente_devolve_404(self):
+        response = self.client.get(reverse("atendimentos:editar", args=[999999]))
+
+        self.assertEqual(response.status_code, 404)

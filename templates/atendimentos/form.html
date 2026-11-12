@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }} | atenDev{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-9 col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 mb-4">{{ titulo }}</h1>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger py-2" role="alert">
+            {% for erro in form.non_field_errors %}{{ erro }}{% endfor %}
+          </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          {% for field in form %}
+            <div class="mb-3">
+              <label class="form-label" for="{{ field.id_for_label }}">
+                {{ field.label }}{% if not field.field.required %} <span class="text-body-secondary small">(opcional)</span>{% endif %}
+              </label>
+              {{ field }}
+              {% if field.help_text %}
+                <div class="form-text">{{ field.help_text }}</div>
+              {% endif %}
+              {% for erro in field.errors %}
+                <div class="text-danger small mt-1">{{ erro }}</div>
+              {% endfor %}
+            </div>
+          {% endfor %}
+
+          <div class="d-flex flex-wrap gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{% url 'atendimentos:lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if atendimento %}
+      <p class="text-body-secondary small mt-3 mb-0">
+        Criado em {{ atendimento.created_at|date:"d/m/Y H:i" }}
+        e atualizado em {{ atendimento.updated_at|date:"d/m/Y H:i" }}.
+      </p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

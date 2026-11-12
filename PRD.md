@@ -145,11 +145,11 @@ login de novo.
 
 ### Sprint 3 | Lista com filtro, cadastro e edição
 
-- [ ] Lista com filtro por status pela query string e estado vazio explicado na tela.
-- [ ] `ModelForm` com validação de cliente e assunto.
-- [ ] Views de cadastro e de edição, com mensagem de sucesso.
-- [ ] Templates das telas e navegação entre lista e formulário.
-- [ ] Testes: assunto vazio é rejeitado, status alterado persiste, filtro concluído mostra
+- [x] Lista com filtro por status pela query string e estado vazio explicado na tela.
+- [x] `ModelForm` com validação de cliente e assunto.
+- [x] Views de cadastro e de edição, com mensagem de sucesso.
+- [x] Templates das telas e navegação entre lista e formulário.
+- [x] Testes: assunto vazio é rejeitado, status alterado persiste, filtro concluído mostra
       apenas concluídos.
 
 Critérios de aceite: os caminhos válidos e inválidos são demonstráveis no navegador; a
