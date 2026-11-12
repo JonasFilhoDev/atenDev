@@ -157,10 +157,10 @@ lista continua correta depois de cadastrar, editar e filtrar.
 
 ### Sprint 4 | Preparação para publicação
 
-- [ ] `settings` lendo SECRET_KEY, DEBUG, ALLOWED_HOSTS e CSRF_TRUSTED_ORIGINS do ambiente.
-- [ ] `STATIC_ROOT` e `collectstatic` funcionando.
-- [ ] `.env.example` com placeholders e README com os passos de execução.
-- [ ] Verificação com `DEBUG=False` no ambiente local.
+- [x] `settings` lendo SECRET_KEY, DEBUG, ALLOWED_HOSTS e CSRF_TRUSTED_ORIGINS do ambiente.
+- [x] `STATIC_ROOT` e `collectstatic` funcionando.
+- [x] `.env.example` com placeholders e README com os passos de execução.
+- [x] Verificação com `DEBUG=False` no ambiente local.
 
 Critérios de aceite: o site abre no endereço do PythonAnywhere, os testes de aceite das
 sprints anteriores passam nesse endereço e o README permite outra pessoa executar o
