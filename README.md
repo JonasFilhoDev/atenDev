@@ -7,6 +7,13 @@ qual está em andamento e qual foi concluído.
 Primeira versão em Django 6.1 sobre Python 3.13, banco SQLite, interface em português e
 timezone America/Sao_Paulo. Os dados publicados são fictícios.
 
+## Endereço publicado
+
+https://jonasfilhodev.pythonanywhere.com
+
+Conta gratuita do PythonAnywhere, Rota A. O app hiberna depois de um tempo sem visita, então o
+primeiro acesso do dia pode levar alguns segundos.
+
 ## O que o sistema faz
 
 - Login obrigatório: sem sessão, nenhuma tela de atendimento abre.
@@ -114,13 +121,17 @@ Conta Beginner, SQLite e dados fictícios.
 4. Rodar `python manage.py migrate`, `python manage.py collectstatic` e
    `python manage.py createsuperuser`.
 5. Na aba Web, apontar o virtualenv, o `WSGI` para o `core` do projeto e mapear `/static/`
-   para a pasta `staticfiles/`.
+   para a pasta `staticfiles/`. Nos caminhos, use o que `pwd` devolve depois de `cd ~`: ele
+   preserva as maiúsculas do nome de usuário, enquanto o subdomínio do site é sempre minúsculo.
+   No arquivo WSGI, a primeira linha tem de começar em `import`, sem espaço à esquerda.
 6. Repetir no endereço publicado os testes de aceite das sprints: login obrigatório, cadastro,
    edição, filtro e logout.
 
 A conta gratuita exige renovação periódica do app. Anote a data da próxima renovação aqui:
 
-- Próxima renovação do app gratuito: preencher na primeira publicação.
+- Primeira publicação em 12/11/2026. O painel mostrou desativação em 12/12/2026, e o clique em
+  "Run until 1 month from today", na aba Web, adia por mais um mês. Sem esse clique mensal, o
+  site sai do ar mesmo com o código intacto.
 
 ## Estrutura
 
