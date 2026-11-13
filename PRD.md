@@ -166,6 +166,22 @@ Critérios de aceite: o site abre no endereço do PythonAnywhere, os testes de a
 sprints anteriores passam nesse endereço e o README permite outra pessoa executar o
 projeto do zero.
 
+### Sprint 5 | Demonstração em modo leitura
+
+- [x] Views de cadastro e de edição exigindo `atendimentos.add_atendimento` e
+      `atendimentos.change_atendimento`.
+- [x] Aviso em português na lista, para quem só consulta.
+- [x] Botão de cadastro e link de edição escondidos de quem não tem permissão.
+- [x] Testes cobrindo bloqueio de GET e de POST, HTML sem o botão, usuário com permissão e
+      superusuário.
+- [ ] Usuário de demonstração do servidor sem as duas permissões, com a demonstração publicada
+      verificada.
+
+Critérios de aceite: com a sessão do usuário demo, `/atendimentos/novo/` e
+`/atendimentos/<id>/editar/` voltam para a lista com aviso e nenhum registro é criado; o HTML da
+lista do demo não traz o botão nem o link de edição; o superusuário continua cadastrando e
+editando. `manage.py test` verde e flake8 limpo.
+
 ## 10. Riscos e decisões pendentes
 
 - Acesso restrito à internet na conta gratuita do PythonAnywhere limita integração externa,
@@ -174,6 +190,8 @@ projeto do zero.
 - Sem exclusão de atendimento nesta versão, por decisão de escopo.
 - Domínio próprio e Rota B ficam pendentes para a próxima versão.
 - O repositório é público. Nenhum dado real de cliente entra nos testes nem nos exemplos.
+- A demonstração publicada usa usuário `demo` sem permissão de escrita. Quem tiver a senha pode
+  consultar a lista; cadastrar e editar ficam bloqueados na view e escondidos no HTML.
 
 ## 11. Checklist final de qualidade
 

@@ -1,10 +1,20 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 
 from .models import Atendimento
+
+
+def dar_permissoes_de_escrita(usuario):
+    """Dá as permissões que as telas de cadastro e edição exigem desde a Sprint 5."""
+    usuario.user_permissions.add(
+        Permission.objects.get(codename="add_atendimento"),
+        Permission.objects.get(codename="change_atendimento"),
+    )
+    return usuario
 
 
 class AtendimentoModelTests(TestCase):
@@ -163,9 +173,11 @@ class AtendimentoTelasTests(TestCase):
     """Sprint 3: lista com filtro, cadastro, edição e mensagem de sucesso."""
 
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            username="responsavel",
-            password="senha-ficticia-123",
+        self.user = dar_permissoes_de_escrita(
+            get_user_model().objects.create_user(
+                username="responsavel",
+                password="senha-ficticia-123",
+            )
         )
         self.client.force_login(self.user)
         self.lista_url = reverse("atendimentos:lista")
@@ -294,3 +306,78 @@ class AtendimentoTelasTests(TestCase):
         response = self.client.get(reverse("atendimentos:editar", args=[999999]))
 
         self.assertEqual(response.status_code, 404)
+
+
+class PermissaoDemonstracaoTests(TestCase):
+    """Sprint 5: o usuário de demonstração consulta, mas não cadastra nem edita."""
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            username="demo",
+            password="senha-ficticia-123",
+        )
+        self.client.force_login(self.user)
+        self.lista_url = reverse("atendimentos:lista")
+        self.criar_url = reverse("atendimentos:criar")
+        self.atendimento = Atendimento.objects.create(
+            cliente="Cliente Demo",
+            assunto="Registro de exemplo",
+        )
+
+    def test_sem_permissao_nao_abre_o_cadastro(self):
+        response = self.client.get(self.criar_url)
+
+        self.assertRedirects(response, self.lista_url, fetch_redirect_response=False)
+
+    def test_sem_permissao_nao_abre_a_edicao(self):
+        response = self.client.get(
+            reverse("atendimentos:editar", args=[self.atendimento.pk])
+        )
+
+        self.assertRedirects(response, self.lista_url, fetch_redirect_response=False)
+
+    def test_post_de_cadastro_nao_cria_registro(self):
+        response = self.client.post(
+            self.criar_url,
+            {"cliente": "Invasor", "assunto": "Tentativa", "status": "pendente"},
+        )
+
+        self.assertRedirects(response, self.lista_url, fetch_redirect_response=False)
+        self.assertEqual(Atendimento.objects.count(), 1)
+        self.assertFalse(Atendimento.objects.filter(cliente="Invasor").exists())
+
+    def test_lista_deixa_claro_que_e_demonstracao(self):
+        self.client.get(self.criar_url)
+        response = self.client.get(self.lista_url)
+
+        self.assertContains(response, "demonstração")
+
+    def test_botao_de_cadastro_nao_aparece_sem_permissao(self):
+        response = self.client.get(self.lista_url)
+
+        self.assertNotContains(response, self.criar_url)
+
+    def test_link_de_edicao_nao_aparece_sem_permissao(self):
+        response = self.client.get(self.lista_url)
+
+        self.assertNotContains(
+            response,
+            reverse("atendimentos:editar", args=[self.atendimento.pk]),
+        )
+
+    def test_botao_de_cadastro_aparece_com_permissao(self):
+        dar_permissoes_de_escrita(self.user)
+        response = self.client.get(self.lista_url)
+
+        self.assertContains(response, self.criar_url)
+
+    def test_superusuario_continua_cadastrando(self):
+        chefe = get_user_model().objects.create_superuser(
+            username="chefe",
+            password="senha-ficticia-123",
+        )
+        self.client.force_login(chefe)
+
+        response = self.client.get(self.criar_url)
+
+        self.assertEqual(response.status_code, 200)
