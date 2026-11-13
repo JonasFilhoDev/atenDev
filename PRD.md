@@ -174,7 +174,7 @@ projeto do zero.
 - [x] Botão de cadastro e link de edição escondidos de quem não tem permissão.
 - [x] Testes cobrindo bloqueio de GET e de POST, HTML sem o botão, usuário com permissão e
       superusuário.
-- [ ] Usuário de demonstração do servidor sem as duas permissões, com a demonstração publicada
+- [x] Usuário de demonstração do servidor sem as duas permissões, com a demonstração publicada
       verificada.
 
 Critérios de aceite: com a sessão do usuário demo, `/atendimentos/novo/` e
