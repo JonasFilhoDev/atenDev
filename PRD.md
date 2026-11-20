@@ -218,7 +218,8 @@ editando. `manage.py test` verde e flake8 limpo.
   com 404 sem traceback.
 - Segredos: o único arquivo de ambiente rastreado é o `.env.example`, com `SECRET_KEY` de exemplo,
   `DEBUG=True` e hosts de desenvolvimento. O `.env` real fica fora do Git.
-- Repositório: `main` sincronizada com `origin/main` no commit 11f6bfe, README com os passos de
-  execução e a data de renovação do app gratuito.
+- Repositório: `main` sincronizada com `origin/main`, README com os passos de execução e a data
+  de renovação do app gratuito. O HEAD no momento da verificação era `11f6bfe`, e este
+  fechamento entrou no commit seguinte.
 - O aceite no navegador (login, cadastro, edição, filtro, logout e bloqueio do usuário demo) foi
   feito pelo Jonas em 12/11/2026 e reconferido no servidor em 13/11/2026.
