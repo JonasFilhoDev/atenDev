@@ -192,12 +192,33 @@ editando. `manage.py test` verde e flake8 limpo.
 - O repositório é público. Nenhum dado real de cliente entra nos testes nem nos exemplos.
 - A demonstração publicada usa usuário `demo` sem permissão de escrita. Quem tiver a senha pode
   consultar a lista; cadastrar e editar ficam bloqueados na view e escondidos no HTML.
+- A versão 2, com domínio próprio e Rota B, fica para depois de existir uma VPS separada,
+  decisão do Jonas em 20/11/2026. A VPS da Central não recebe este projeto porque serve
+  `agentjj.com.br` e já ocupa as portas 80 e 443, que o Traefik precisa.
+- A renovação do app gratuito é manual e mensal: a plataforma não renova sozinha. Um job do cron
+  do agente avisa todo dia 8 e confere se o endereço responde, mas o clique em "Run until 1 month
+  from today", na aba Web, continua sendo do responsável.
 
 ## 11. Checklist final de qualidade
 
-- [ ] O pedido deste PRD e o sistema entregue descrevem a mesma versão.
-- [ ] Todas as funcionalidades foram conferidas com dados fictícios.
-- [ ] Os testes passam e nenhuma pendência necessária ficou aberta.
-- [ ] Login, permissões e arquivos de segredo revisados.
-- [ ] Código versionado no GitHub, com README e instruções de execução.
-- [ ] Publicação testada no endereço público.
+- [x] O pedido deste PRD e o sistema entregue descrevem a mesma versão.
+- [x] Todas as funcionalidades foram conferidas com dados fictícios.
+- [x] Os testes passam e nenhuma pendência necessária ficou aberta.
+- [x] Login, permissões e arquivos de segredo revisados.
+- [x] Código versionado no GitHub, com README e instruções de execução.
+- [x] Publicação testada no endereço público.
+
+### Fechamento da v1, verificado em 20/11/2026
+
+- `manage.py test` no `.venv` do PC: 33 testes, todos passam em 8,5 s, com `check` sem issue.
+- `flake8 atendimentos core` com código de saída 0, sem apontamento.
+- Endereço público medido de fora: `/` 302 para `/atendimentos/`; `/entrar/` 200 com
+  `csrfmiddlewaretoken` no HTML; `/atendimentos/` e `/atendimentos/novo/` 302 para o login com
+  `next`; `/sair/` 405 em GET; `/static/admin/css/base.css` 200 com 24538 bytes; rota inexistente
+  com 404 sem traceback.
+- Segredos: o único arquivo de ambiente rastreado é o `.env.example`, com `SECRET_KEY` de exemplo,
+  `DEBUG=True` e hosts de desenvolvimento. O `.env` real fica fora do Git.
+- Repositório: `main` sincronizada com `origin/main` no commit 11f6bfe, README com os passos de
+  execução e a data de renovação do app gratuito.
+- O aceite no navegador (login, cadastro, edição, filtro, logout e bloqueio do usuário demo) foi
+  feito pelo Jonas em 12/11/2026 e reconferido no servidor em 13/11/2026.
